@@ -14,12 +14,11 @@ yarn add @beekeeperstudio/vite-plugin --dev
 
 ```ts
 import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
 import bks from '@beekeeperstudio/vite-plugin';
 
 export default defineConfig({
   plugins: [
-    vue(), // optional
+    vue(), // example: use the plugin for your framework (Vue, React, Svelte, etc.)
     bks({
       entrypoints: [
         {
