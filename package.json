@@ -25,7 +25,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/beekeeperstudio/vite-plugin"
+    "url": "https://github.com/beekeeper-studio/vite-plugin"
   },
   "peerDependencies": {
     "vite": "^4.0.0 || ^5.0.0"
