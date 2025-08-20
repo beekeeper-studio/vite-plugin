@@ -1,6 +1,6 @@
 {
   "name": "@beekeeperstudio/vite-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Vite plugin for Beekeeper Studio plugin development that enables hot reloading",
   "exports": {
     ".": {
