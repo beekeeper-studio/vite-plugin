@@ -12,36 +12,29 @@ type Options = {
 };
 
 /**
- * A Vite plugin for Beekeeper Studio plugin development that enables hot reloading
- * by automatically injecting Vite's dev client into HTML entrypoints and watching
- * for file changes during development.
+ * A Vite plugin for Beekeeper Studio plugin development.
  *
- * @param options - Configuration object containing entrypoints to process
+ * @param options - Configuration object containing entrypoints to process (defaults to index.html → dist/index.html)
  * @param options.entrypoints - Array of input/output file pairs to transform
  * @returns Vite plugin instance configured for development mode
  *
  * @example
  * ```ts
  * import { defineConfig } from 'vite';
- * import vue from '@vitejs/plugin-vue';
  * import bks from '@beekeeperstudio/vite-plugin-dev';
  *
  * export default defineConfig({
  *   plugins: [
- *     vue(), // optional
- *     bks({
- *       entrypoints: [
- *         {
- *           input: 'src/index.html',
- *           output: 'dist/index.html'
- *         }
- *       ]
- *     })
+ *     bks(),
  *   ]
  * });
  * ```
  */
-export default function bks(options: Options): Plugin {
+export default function bks(
+  options: Options = {
+    entrypoints: [{ input: "index.html", output: "dist/index.html" }],
+  },
+): Plugin {
   let config: ResolvedConfig;
   let portFromServer: number | undefined;
 
@@ -74,8 +67,10 @@ export default function bks(options: Options): Plugin {
 
     fs.mkdirSync(path.dirname(outHtmlPath), { recursive: true });
     fs.writeFileSync(outHtmlPath, html, "utf8");
-    
-    console.log(`\x1b[32m✓\x1b[0m \x1b[36m[bks]\x1b[0m Transformed entrypoint: \x1b[33m${entry.input}\x1b[0m → \x1b[33m${entry.output}\x1b[0m`);
+
+    console.log(
+      `\x1b[32m✓\x1b[0m \x1b[36m[bks]\x1b[0m Transformed entrypoint: \x1b[33m${entry.input}\x1b[0m → \x1b[33m${entry.output}\x1b[0m`,
+    );
   };
 
   const watchFiles = (server: ViteDevServer) => {
@@ -92,8 +87,17 @@ export default function bks(options: Options): Plugin {
   };
 
   return {
-    name: "bks",
-    apply: "serve",
+    name: "bks-plugin",
+    config: () => ({
+      // Use relative path so beekeeper studio can load assets correctly
+      base: "./",
+      server: {
+        cors: {
+          // Ensure proper CORS
+          origin: /^plugin:\/\//,
+        },
+      },
+    }),
     configResolved(_config) {
       config = _config;
     },

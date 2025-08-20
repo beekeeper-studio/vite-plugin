@@ -18,12 +18,8 @@
     "prepack": "unbuild"
   },
   "keywords": [
-    "vite",
-    "plugin",
-    "beekeeper",
-    "studio",
-    "development",
-    "hot-reload"
+    "vite-plugin",
+    "beekeeper-studio"
   ],
   "author": "Beekeeper Studio",
   "license": "MIT",
