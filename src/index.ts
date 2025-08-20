@@ -74,7 +74,8 @@ export default function bks(options: Options): Plugin {
 
     fs.mkdirSync(path.dirname(outHtmlPath), { recursive: true });
     fs.writeFileSync(outHtmlPath, html, "utf8");
-    console.info(`[bks] Emitted: ${outHtmlPath}`);
+    
+    console.log(`\x1b[32m✓\x1b[0m \x1b[36m[bks]\x1b[0m Transformed entrypoint: \x1b[33m${entry.input}\x1b[0m → \x1b[33m${entry.output}\x1b[0m`);
   };
 
   const watchFiles = (server: ViteDevServer) => {
@@ -102,7 +103,6 @@ export default function bks(options: Options): Plugin {
         options.entrypoints.forEach((entry) => writeEntrypoint(entry, devPort));
       };
 
-      writeAll();
       server.httpServer?.once("listening", () => {
         const addr = server.httpServer?.address();
         if (addr && typeof addr === "object" && addr.port) {
