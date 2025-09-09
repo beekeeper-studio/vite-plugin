@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
 type Entrypoint = {
@@ -10,6 +11,20 @@ type Entrypoint = {
 type Options = {
   entrypoints: Entrypoint[];
 };
+
+function getManifestId(config: ResolvedConfig) {
+  try {
+    const manifestPath = path.resolve(config.root, "manifest.json");
+    if (fs.existsSync(manifestPath)) {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+      return manifest.id || "";
+    }
+  } catch (error) {
+    console.warn(`[bks] Could not read manifest.json: ${error}`);
+    // Silently ignore errors reading manifest
+  }
+  return "";
+}
 
 /**
  * A Vite plugin for Beekeeper Studio plugin development.
@@ -38,8 +53,22 @@ export default function bks(
   let config: ResolvedConfig;
   let portFromServer: number | undefined;
 
+  // Read error template
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
   const injectDevClient = (html: string, port: number): string => {
-    const clientScript = `<script type="module" src="http://localhost:${port}/@vite/client"></script>`;
+    const manifestId = getManifestId(config);
+    const currentUrl = encodeURIComponent(window?.location?.href || '');
+    const errorUrl = `./error.html?port=${port}${manifestId ? `&manifestId=${manifestId}` : ''}&target=${currentUrl}`;
+
+    const clientScript = `<script>
+      window.showViteError = function(e) {
+        const currentUrl = encodeURIComponent(window.location.href);
+        window.location.href = './error.html?port=${port}${manifestId ? `&manifestId=${manifestId}` : ''}&target=' + currentUrl;
+      };
+    </script>
+    <script type="module" src="http://localhost:${port}/@vite/client" onerror="showViteError()"></script>`;
+
     const withClient = html.replace(
       /(<head[^>]*>)/i,
       `$1\n    ${clientScript}`,
@@ -102,6 +131,75 @@ export default function bks(
       config = _config;
     },
     configureServer(server) {
+      // Copy files for dev server
+      const copyDevFiles = () => {
+        try {
+          // Copy to each entrypoint's output directory
+          const outputDirs: string[] = [];
+          
+          options.entrypoints.forEach(entry => {
+            const outputDir = path.resolve(config.root, path.dirname(entry.output));
+            if (!outputDirs.includes(outputDir)) {
+              outputDirs.push(outputDir);
+            }
+          });
+          
+          outputDirs.forEach(dir => {
+            // Ensure directory exists
+            if (!fs.existsSync(dir)) {
+              fs.mkdirSync(dir, { recursive: true });
+            }
+            
+            // Copy eventForwarder.js
+            const eventForwarderSrc = path.resolve(config.root, "node_modules/@beekeeperstudio/plugin/dist/eventForwarder.js");
+            if (fs.existsSync(eventForwarderSrc)) {
+              fs.copyFileSync(eventForwarderSrc, path.resolve(dir, "eventForwarder.js"));
+            }
+            
+            // Copy error.html
+            const errorPageSrc = path.resolve(__dirname, "../error.html");
+            if (fs.existsSync(errorPageSrc)) {
+              fs.copyFileSync(errorPageSrc, path.resolve(dir, "error.html"));
+            }
+          });
+          
+          console.log("[bks] Copied dev files to output directories");
+        } catch (error) {
+          console.warn("[bks] Could not copy dev files:", error);
+        }
+      };
+
+      // Copy files on server start
+      copyDevFiles();
+
+      // Add custom endpoint to return manifest ID
+      server.middlewares.use((req, res, next) => {
+        if (req.url === "/__bks_vite_plugin__info") {
+          res.writeHead(200, {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          });
+          res.end(JSON.stringify({ manifestId: getManifestId(config) }));
+          return;
+        }
+        next();
+      });
+
+      // Add middleware to check origin
+      server.middlewares.use((req, res, next) => {
+        const origin = req.headers.origin;
+        if (origin && origin.startsWith("plugin://")) {
+          const manifestId = getManifestId(config);
+
+          if (manifestId && origin !== `plugin://${manifestId}`) {
+            res.writeHead(403);
+            res.end();
+            return;
+          }
+        }
+        next();
+      });
+
       const writeAll = () => {
         const devPort = portFromServer || server.config.server.port || 5173;
         options.entrypoints.forEach((entry) => writeEntrypoint(entry, devPort));

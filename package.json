@@ -1,6 +1,6 @@
 {
   "name": "@beekeeperstudio/vite-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Vite plugin for Beekeeper Studio plugin development that enables hot reloading",
   "exports": {
     ".": {
@@ -28,13 +28,14 @@
     "url": "https://github.com/beekeeper-studio/vite-plugin"
   },
   "peerDependencies": {
-    "vite": "^4.0.0 || ^5.0.0"
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0"
   },
   "devDependencies": {
+    "@beekeeperstudio/plugin": "^1.3.1",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0",
     "unbuild": "^3.6.1",
-    "vite": "^5.0.0"
+    "vite": "^7.1.3"
   },
   "engines": {
     "node": ">=16"

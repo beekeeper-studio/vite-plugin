@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🚨 Vite Dev Server Error</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: monospace;
+        font-size: 12px;
+        background: #1a1a1a;
+        color: #ff6b6b;
+        padding: 40px;
+      }
+
+      .container {
+        max-width: 800px;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      .plugin-info {
+        color: #fff;
+        margin-bottom: 20px;
+      }
+
+      code {
+        background: #333;
+        padding: 8px;
+        border-radius: 4px;
+        display: block;
+        margin: 10px 0;
+      }
+
+      .refresh {
+        background: #ff6b6b;
+        color: #1a1a1a;
+        border: none;
+        padding: 0.5rem 1rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        font-family: monospace;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 0.5rem;
+      }
+
+      .refresh:hover {
+        background: #ff8a8a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚨 Vite Dev Server Error</h1>
+      <p class="plugin-info" id="plugin-info" style="display: none"></p>
+      <p>Failed to load Vite dev client from:</p>
+      <code id="vite-url"></code>
+      <p>Possible solutions:</p>
+      <ul>
+        <li>
+          Make sure Vite dev server is running on port <span id="port"></span>
+        </li>
+        <li>Ensure you are running the correct Vite server for this plugin</li>
+        <li>Ensure there are no firewall or network issues</li>
+        <li>Try restarting the Vite dev server</li>
+      </ul>
+      <button onclick="refresh()" class="refresh">Refresh Page</button>
+    </div>
+
+    <script src="./eventForwarder.js"></script>
+    <script>
+      // Get URL parameters
+      const params = new URLSearchParams(window.location.search);
+      const port = params.get("port") || "5173";
+      const manifestId = params.get("manifestId") || "";
+      const target = params.get("target") || "";
+
+      // Update the page with dynamic content
+      document.getElementById("vite-url").textContent =
+        `http://localhost:${port}/@vite/client`;
+      document.getElementById("port").textContent = port;
+
+      if (manifestId) {
+        document.getElementById("plugin-info").textContent =
+          `Manifest ID: ${manifestId}`;
+        document.getElementById("plugin-info").style.display = "block";
+      }
+
+      // Update page title
+      document.title = `🚨 Vite Dev Server Error${manifestId ? ` - ${manifestId}` : ""}`;
+
+      async function checkMismatch() {
+        const res = await fetch(
+          `http://localhost:${port}/__bks_vite_plugin__info`,
+        );
+        const data = await res.json();
+        if (data.manifestId !== manifestId) {
+          console.error(
+            "Plugin manifest ID mismatch: expected",
+            manifestId,
+            "but got",
+            data.manifestId,
+          );
+          document.body.querySelector(".container").innerHTML =
+            `<h1>🚨 Plugin Mismatch Error</h1>
+  <p>You are running a Vite server for <b>${data.manifestId}</b>. Please start <b>${manifestId}</b> Vite server to fix this error and refresh.</p>
+  <button onclick="refresh()" class="refresh">
+    Refresh Page
+  </button>`;
+        }
+      }
+
+      window.refresh = () => {
+        window.location.href = target;
+      };
+
+      checkMismatch();
+    </script>
+  </body>
+</html>
