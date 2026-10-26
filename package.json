@@ -29,7 +29,7 @@
     "url": "https://github.com/beekeeper-studio/vite-plugin"
   },
   "peerDependencies": {
-    "@beekeeperstudio/plugin": "^1.7.2",
+    "@beekeeperstudio/plugin": "^1.8.0",
     "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
