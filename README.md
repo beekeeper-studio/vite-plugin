@@ -7,6 +7,7 @@ the [Beekeeper Studio Plugin SDK](https://github.com/beekeeper-studio/plugin)
 ## Documentation
 
 - [Beekeeper Studio Plugin SDK](https://github.com/beekeeper-studio/plugin) - the SDK this build plugin pairs with
+- [Plugin SDK docs](https://docs.beekeeperstudio.io/plugin_development/sdk/) - overview of the SDK and this build plugin
 - [Creating Your First Plugin](https://docs.beekeeperstudio.io/plugin_development/creating-your-first-plugin/) - tutorial that uses this build plugin
 - [SDK Reference](https://docs.beekeeperstudio.io/plugin_development/api-reference/) - every function, event and type in the SDK
 
