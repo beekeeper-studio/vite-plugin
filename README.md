@@ -1,6 +1,15 @@
 # @beekeeperstudio/vite-plugin
 
-A Vite plugin for Beekeeper Studio plugin development.
+A [Vite](https://vite.dev) build plugin for Beekeeper Studio plugin development. Use it alongside
+the [Beekeeper Studio Plugin SDK](https://github.com/beekeeper-studio/plugin)
+(`@beekeeperstudio/plugin`), which your plugin uses to talk to the app.
+
+## Documentation
+
+- [Beekeeper Studio Plugin SDK](https://github.com/beekeeper-studio/plugin) - the SDK this build plugin pairs with
+- [Plugin SDK docs](https://docs.beekeeperstudio.io/plugin_development/sdk/) - overview of the SDK and this build plugin
+- [Creating Your First Plugin](https://docs.beekeeperstudio.io/plugin_development/creating-your-first-plugin/) - tutorial that uses this build plugin
+- [SDK Reference](https://docs.beekeeperstudio.io/plugin_development/api-reference/) - every function, event and type in the SDK
 
 ## What It Does
 
@@ -25,12 +34,14 @@ npm create vite@latest
 yarn create vite
 ```
 
-2. Install `@beekeeperstudio/vite-plugin`
+2. Install `@beekeeperstudio/vite-plugin` and the [Plugin SDK](https://github.com/beekeeper-studio/plugin)
 
 ```bash
 npm install --save-dev @beekeeperstudio/vite-plugin
+npm install @beekeeperstudio/plugin
 # or
 yarn add -D @beekeeperstudio/vite-plugin
+yarn add @beekeeperstudio/plugin
 ```
 
 3. Update vite.config.ts
